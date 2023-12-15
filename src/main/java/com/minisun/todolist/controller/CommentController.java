@@ -2,6 +2,7 @@ package com.minisun.todolist.controller;
 
 import java.util.concurrent.RejectedExecutionException;
 
+import com.minisun.todolist.dto.ApiResponseDTO;
 import com.minisun.todolist.dto.CommentRequestDTO;
 import com.minisun.todolist.dto.CommentResponseDTO;
 import com.minisun.todolist.dto.CommonResponseDTO;
@@ -29,30 +30,21 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<CommentResponseDTO> postComment(@RequestBody CommentRequestDTO commentRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDTO<CommentResponseDTO> postComment(@RequestBody CommentRequestDTO commentRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         CommentResponseDTO responseDTO = commentService.createComment(commentRequestDTO, userDetails.getUser());
-
-        return ResponseEntity.status(201).body(responseDTO);
+        return new ApiResponseDTO<>(HttpStatus.CREATED.value(), "Comment 작성 성공", responseDTO);
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<CommonResponseDTO> putComment(@PathVariable Long commentId, @RequestBody CommentRequestDTO commentRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            CommentResponseDTO responseDTO = commentService.updateComment(commentId, commentRequestDTO, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (RejectedExecutionException | IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(new CommonResponseDTO(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
+    public ApiResponseDTO<CommonResponseDTO> putComment(@PathVariable Long commentId, @RequestBody CommentRequestDTO commentRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CommentResponseDTO responseDTO = commentService.updateComment(commentId, commentRequestDTO, userDetails.getUser());
+        return new ApiResponseDTO<>(HttpStatus.OK.value(), "Comment 수정 성공", responseDTO);
     }
 
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<CommonResponseDTO> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            commentService.deleteComment(commentId, userDetails.getUser());
-            return ResponseEntity.ok().body(new CommonResponseDTO("정상적으로 삭제 되었습니다.", HttpStatus.OK.value()));
-        } catch (RejectedExecutionException | IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(new CommonResponseDTO(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
+    public ApiResponseDTO<Void> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        commentService.deleteComment(commentId, userDetails.getUser());
+        return new ApiResponseDTO<>(HttpStatus.OK.value(), "Comment 삭제 성공");
     }
 }

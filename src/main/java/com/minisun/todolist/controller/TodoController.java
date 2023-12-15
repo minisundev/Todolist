@@ -30,52 +30,36 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping
-    public ResponseEntity<TodoResponseDTO> postTodo(@RequestBody TodoRequestDTO todoRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDTO<TodoResponseDTO> postTodo(@RequestBody TodoRequestDTO todoRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         TodoResponseDTO responseDTO = todoService.createTodo(todoRequestDTO, userDetails.getUser());
-
-        return ResponseEntity.status(201).body(responseDTO);
+        return new ApiResponseDTO<>(HttpStatus.CREATED.value(), "Todo 작성 성공", responseDTO);
     }
 
     @GetMapping("/{todoId}")
-    public ResponseEntity<CommonResponseDTO> getTodo(@PathVariable Long todoId) {
-        try {
-            TodoResponseDTO responseDTO = todoService.getTodoDto(todoId);
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new CommonResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
+    public  ApiResponseDTO<TodoResponseDTO> getTodo(@PathVariable Long todoId) {
+        TodoResponseDTO responseDTO = todoService.getTodoDto(todoId);
+        return new ApiResponseDTO<>(HttpStatus.OK.value(), "Todo 조회 성공", responseDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoListResponseDTO>> getTodoList() {
+    public ApiResponseDTO<Map<UserResponseDTO, List<TodoResponseDTO>>> getTodoList() {
         List<TodoListResponseDTO> response = new ArrayList<>();
-
         Map<UserResponseDTO, List<TodoResponseDTO>> responseDTOMap = todoService.getUserTodoMap();
-
         responseDTOMap.forEach((key, value) -> response.add(new TodoListResponseDTO(key, value)));
-
-        return ResponseEntity.ok().body(response);
+        return new ApiResponseDTO<>(HttpStatus.OK.value(), "TodoList 조회 성공", responseDTOMap);
     }
 
 
     @PutMapping("/{todoId}")
-    public ResponseEntity<TodoResponseDTO> putTodo(@PathVariable Long todoId, @RequestBody TodoRequestDTO todoRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            TodoResponseDTO responseDTO = todoService.updateTodo(todoId, todoRequestDTO, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (RejectedExecutionException | IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(new TodoResponseDTO(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
+    public ApiResponseDTO<TodoResponseDTO> putTodo(@PathVariable Long todoId, @RequestBody TodoRequestDTO todoRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        TodoResponseDTO responseDTO = todoService.updateTodo(todoId, todoRequestDTO, userDetails.getUser());
+        return new ApiResponseDTO<>(HttpStatus.OK.value(), "Todo 수정 성공", responseDTO);
     }
 
 
     @PatchMapping("/{todoId}/complete")
-    public ResponseEntity<TodoResponseDTO> completeTodo(@PathVariable Long todoId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            TodoResponseDTO responseDTO = todoService.completeTodo(todoId, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (RejectedExecutionException | IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(new TodoResponseDTO(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
+    public ApiResponseDTO<TodoResponseDTO> completeTodo(@PathVariable Long todoId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        TodoResponseDTO responseDTO = todoService.completeTodo(todoId, userDetails.getUser());
+        return new ApiResponseDTO<>(HttpStatus.OK.value(), "Todo 완료 성공", responseDTO);
     }
 }

@@ -1,5 +1,6 @@
 package com.minisun.todolist.controller;
 
+import com.minisun.todolist.dto.ApiResponseDTO;
 import com.minisun.todolist.dto.CommonResponseDTO;
 import com.minisun.todolist.dto.UserRequestDTO;
 import com.minisun.todolist.service.UserService;
@@ -24,27 +25,15 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponseDTO> signup(@Valid @RequestBody UserRequestDTO userRequestDto) {
-        try {
-            userService.signup(userRequestDto);
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity.badRequest().body(new CommonResponseDTO("중복된 username 입니다.", HttpStatus.BAD_REQUEST.value()));
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED.value())
-                .body(new CommonResponseDTO("회원가입 성공", HttpStatus.CREATED.value()));
+    public ApiResponseDTO<Void> signup(@Valid @RequestBody UserRequestDTO userRequestDto) {
+        userService.signup(userRequestDto);
+        return new ApiResponseDTO<>(HttpStatus.CREATED.value(),"회원가입 성공");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CommonResponseDTO> login(@RequestBody UserRequestDTO userRequestDto, HttpServletResponse response) {
-        try {
-            userService.login(userRequestDto);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new CommonResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
-
+    public ApiResponseDTO<Void> login(@RequestBody UserRequestDTO userRequestDto, HttpServletResponse response) {
+        userService.login(userRequestDto);
         response.setHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(userRequestDto.getUsername()));
-
-        return ResponseEntity.ok().body(new CommonResponseDTO("로그인 성공", HttpStatus.OK.value()));
+        return new ApiResponseDTO<>(HttpStatus.OK.value(),"로그인 성공");
     }
 }
