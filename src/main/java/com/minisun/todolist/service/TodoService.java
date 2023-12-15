@@ -1,7 +1,12 @@
 package com.minisun.todolist.service;
 
-import com.minisun.todolist.entity.User;
+import com.minisun.todolist.dto.TodoRequestDTO;
+import com.minisun.todolist.dto.TodoResponseDTO;
 import com.minisun.todolist.dto.UserResponseDTO;
+import com.minisun.todolist.entity.Todo;
+import com.minisun.todolist.entity.User;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,86 +14,51 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.minisun.todolist.dto.TodoRequestDTO;
-import com.minisun.todolist.dto.TodoResponseDTO;
-import com.minisun.todolist.entity.Todo;
-import com.minisun.todolist.repository.TodoRepository;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+public interface TodoService {
+    /*
+    * Todo 생성
+    * @param requestDto Todo 생성 요청정보
+    * @param user Todo 생성 요청자
+    * @return Todo 생성 결과
+    */
+    public TodoResponseDTO createTodo(TodoRequestDTO dto, User user);
 
-import lombok.RequiredArgsConstructor;
+    /*
+     * Todo 조회
+     * @param todoId Todo id
+     * @return Todo 내용
+     */
+    public TodoResponseDTO getTodoDto(Long todoId);
 
-@Service
-@RequiredArgsConstructor
-public class TodoService {
-    private final TodoRepository todoRepository;
+    /*
+     * TodoList 조회
+     * @return user와 Todo의 Map
+     */
+    public Map<UserResponseDTO, List<TodoResponseDTO>> getUserTodoMap();
 
-    public TodoResponseDTO createTodo(TodoRequestDTO dto, User user) {
-        Todo todo = new Todo(dto);
-        todo.setUser(user);
-
-        var saved = todoRepository.save(todo);
-
-        return new TodoResponseDTO(saved);
-    }
-
-    public TodoResponseDTO getTodoDto(Long todoId) {
-        Todo todo = getTodo(todoId);
-        return new TodoResponseDTO(todo);
-    }
-
-    public Map<UserResponseDTO, List<TodoResponseDTO>> getUserTodoMap() {
-        Map<UserResponseDTO, List<TodoResponseDTO>> userTodoMap = new HashMap<>();
-
-        List<Todo> todoList = todoRepository.findAll(Sort.by(Sort.Direction.DESC, "createDate")); // 작성일 기준 내림차순
-
-        todoList.forEach(todo -> {
-            var userDto = new UserResponseDTO(todo.getUser());
-            var todoDto = new TodoResponseDTO(todo);
-            if (userTodoMap.containsKey(userDto)) {
-                // 유저 할일목록에 항목을 추가
-                userTodoMap.get(userDto).add(todoDto);
-            } else {
-                // 유저 할일목록을 새로 추가
-                userTodoMap.put(userDto, new ArrayList<>(List.of(todoDto)));
-            }
-        });
-
-        return userTodoMap;
-    }
-
+    /*
+     * Todo 수정
+     * @param requestDto Todo 수정 요청정보
+     * @param user Todo 수정 요청자
+     * @return Todo 수정 결과
+     */
     @Transactional
-    public TodoResponseDTO updateTodo(Long todoId, TodoRequestDTO todoRequestDTO, User user) {
-        Todo todo = getUserTodo(todoId, user);
+    public TodoResponseDTO updateTodo(Long todoId, TodoRequestDTO todoRequestDTO, User user);
 
-        todo.setTitle(todoRequestDTO.getTitle());
-        todo.setContent(todoRequestDTO.getContent());
-
-        return new TodoResponseDTO(todo);
-    }
-
+    /*
+     * Todo 완료
+     * @param id 완료할 Todo id
+     * @param user Todo 완료 요청자
+     * @return Todo 완료 결과
+     */
     @Transactional
-    public TodoResponseDTO completeTodo(Long todoId, User user) {
-        Todo todo = getUserTodo(todoId, user);
+    public TodoResponseDTO completeTodo(Long todoId, User user);
 
-        todo.complete(); // 완료 처리
+    /*
+     * Todo 가져오기
+     * @param id Todo id
+     * @return Todo
+     */
+    public Todo getTodo(Long todoId);
 
-        return new TodoResponseDTO(todo);
-    }
-
-    public Todo getTodo(Long todoId) {
-
-        return todoRepository.findById(todoId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 할일 ID 입니다."));
-    }
-
-    public Todo getUserTodo(Long todoId, User user) {
-        Todo todo = getTodo(todoId);
-
-        if(!user.getId().equals(todo.getUser().getId())) {
-            throw new RejectedExecutionException("작성자만 수정할 수 있습니다.");
-        }
-        return todo;
-    }
 }

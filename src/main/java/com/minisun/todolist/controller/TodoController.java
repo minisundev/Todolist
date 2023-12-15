@@ -3,13 +3,12 @@ package com.minisun.todolist.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.RejectedExecutionException;
 
 import com.minisun.todolist.dto.*;
 import com.minisun.todolist.security.UserDetailsImpl;
 import com.minisun.todolist.service.TodoService;
+import com.minisun.todolist.service.TodoServiceImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,10 +23,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/todos")
 @RestController
-@RequiredArgsConstructor
 public class TodoController {
 
     private final TodoService todoService;
+
+    public TodoController(TodoServiceImpl todoServiceImpl){
+        this.todoService = todoServiceImpl;
+    }
 
     @PostMapping
     public ApiResponseDTO<TodoResponseDTO> postTodo(@RequestBody TodoRequestDTO todoRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {

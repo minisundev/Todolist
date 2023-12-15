@@ -18,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 ///-> 각각의 test들이 필드를 공유할 수 있게 된다
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)//순서를 정할 수 있다
 
-public class UserServiceTest {
+public class UserServiceImplTest {
 
     @Autowired
-    UserService userService;
+    UserServiceImpl userServiceImpl;
 
     @Autowired
     UserRepository userRepository;
@@ -44,7 +44,7 @@ public class UserServiceTest {
         requestDTO.setUsername(username);
 
         // when
-        userService.signup(requestDTO);
+        userServiceImpl.signup(requestDTO);
 
         // then
         User user = userRepository.findById(1L).orElse(null);

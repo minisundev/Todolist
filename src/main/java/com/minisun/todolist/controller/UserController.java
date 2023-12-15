@@ -1,11 +1,10 @@
 package com.minisun.todolist.controller;
 
 import com.minisun.todolist.dto.ApiResponseDTO;
-import com.minisun.todolist.dto.CommonResponseDTO;
 import com.minisun.todolist.dto.UserRequestDTO;
 import com.minisun.todolist.service.UserService;
+import com.minisun.todolist.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +18,14 @@ import com.minisun.todolist.jwt.JwtUtil;
 
 @RequestMapping("/api/users")
 @RestController
-@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
+
+    public UserController(UserServiceImpl userServiceImpl,JwtUtil jwtUtil){
+        this.userService = userServiceImpl;
+        this.jwtUtil = jwtUtil;
+    }
 
     @PostMapping("/signup")
     public ApiResponseDTO<Void> signup(@Valid @RequestBody UserRequestDTO userRequestDto) {

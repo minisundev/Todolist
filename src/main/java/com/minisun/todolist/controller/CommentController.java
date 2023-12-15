@@ -1,14 +1,12 @@
 package com.minisun.todolist.controller;
 
-import java.util.concurrent.RejectedExecutionException;
-
 import com.minisun.todolist.dto.ApiResponseDTO;
 import com.minisun.todolist.dto.CommentRequestDTO;
 import com.minisun.todolist.dto.CommentResponseDTO;
 import com.minisun.todolist.dto.CommonResponseDTO;
 import com.minisun.todolist.service.CommentService;
+import com.minisun.todolist.service.CommentServiceImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +22,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/comments")
 @RestController
-@RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
+
+    public CommentController(CommentServiceImpl commentServiceImpl){
+        this.commentService = commentServiceImpl;
+    }
 
     @PostMapping
     public ApiResponseDTO<CommentResponseDTO> postComment(@RequestBody CommentRequestDTO commentRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {

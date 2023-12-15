@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // 테스트 인스턴스의 생성 단위를 클래스로 변경
 ///-> 각각의 test들이 필드를 공유할 수 있게 된다
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)//순서를 정할 수 있다
-public class TodoServiceTest {
+public class TodoServiceImplTest {
 
     @Autowired
-    TodoService todoService;
+    TodoServiceImpl todoServiceImpl;
     @Autowired
     UserRepository userRepository;
 
@@ -37,7 +37,7 @@ public class TodoServiceTest {
         User user = userRepository.findById(1L).orElse(null);
 
         // when
-        TodoResponseDTO todo = todoService.createTodo(requestDTO,user);
+        TodoResponseDTO todo = todoServiceImpl.createTodo(requestDTO,user);
 
         // then
         assertNotNull(todo.getId());

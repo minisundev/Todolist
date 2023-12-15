@@ -6,8 +6,7 @@ import com.minisun.todolist.dto.TodoRequestDTO;
 import com.minisun.todolist.dto.UserRequestDTO;
 import com.minisun.todolist.entity.User;
 import com.minisun.todolist.security.UserDetailsImpl;
-import com.minisun.todolist.service.UserService;
-import net.minidev.json.JSONObject;
+import com.minisun.todolist.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
@@ -54,7 +51,7 @@ public class ControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    UserService userService;
+    UserServiceImpl userServiceImpl;
 
     @BeforeEach
     public void setup() {
